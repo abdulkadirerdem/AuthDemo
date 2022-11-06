@@ -7,6 +7,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from "react-native";
 
 // firebase
@@ -24,17 +25,20 @@ const Register = (props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSingedUp, setIsSignedUp] = useState(false);
+  const [inProcess, setInProcess] = useState(false);
 
   const handleSignUp = () => {
     createUserWithEmailAndPassword(authentication, email, password)
       .then((re) => {
         console.log("User account created & signed in!", re);
         setIsSignedUp(true);
+        setInProcess(false);
         props.navigation.navigate("Home", re);
       })
       .catch((error) => {
         console.error(error);
         setIsSignedUp(false);
+        setInProcess(false);
       });
   };
 
@@ -53,16 +57,23 @@ const Register = (props) => {
           value={password}
           onChangeText={setPassword}
           style={styles.input}
+          secureTextEntry
         />
       </View>
       <View style={styles.buttonRange}>
         <TouchableOpacity
           onPress={() => {
             handleSignUp();
+            setInProcess(true);
           }}
           style={styles.button}
+          disabled={inProcess}
         >
-          <Text style={styles.buttonText}>Register</Text>
+          {inProcess ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Register</Text>
+          )}
         </TouchableOpacity>
       </View>
     </>

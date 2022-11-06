@@ -7,11 +7,12 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from "react-native";
 
 // firebase
 import { authentication } from "../../../firebase";
-import { signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 // Logs
 import { LogBox } from "react-native";
@@ -24,24 +25,21 @@ const Login = (props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSingedIn, setIsSignedIn] = useState(false);
+  const [inProcess, setInProcess] = useState(false);
 
   const handleSignIn = () => {
     signInWithEmailAndPassword(authentication, email, password)
       .then((re) => {
         console.log("User account created & signed in!", re);
         setIsSignedIn(true);
+        setInProcess(false);
         props.navigation.navigate("Home", re);
       })
       .catch((error) => {
         console.error(error);
         setIsSignedIn(false);
+        setInProcess(false);
       });
-  };
-
-  const SignOutUser = () => {
-    signOut(authentication)
-      .then((re) => console.log(re))
-      .catch((error) => console.log(error));
   };
 
   return (
@@ -59,16 +57,23 @@ const Login = (props) => {
           value={password}
           onChangeText={setPassword}
           style={styles.input}
+          secureTextEntry
         />
       </View>
       <View style={styles.buttonRange}>
         <TouchableOpacity
           onPress={() => {
             handleSignIn();
+            setInProcess(true);
           }}
           style={styles.button}
+          disabled={inProcess}
         >
-          <Text style={styles.buttonText}>Login</Text>
+          {inProcess ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Login</Text>
+          )}
         </TouchableOpacity>
       </View>
     </>
